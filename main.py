@@ -25,3 +25,6 @@ print(foods)
 @app.route("/api/foods")
 def getFoods():
     return json.dumps(foods)
+
+if __name__ == "__main__":
+	app.run()
