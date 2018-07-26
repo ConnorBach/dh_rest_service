@@ -49,7 +49,7 @@ def index():
 
 @app.route("/api/foods")
 def getFoods():
-    return json.dumps(foods)
+    return json.dumps(foods[0]['Menu'])
 
 if __name__ == "__main__":
 	app.run()
