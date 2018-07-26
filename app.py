@@ -1,26 +1,51 @@
 import os
 import json
-from selenium import webdriver
+import requests
 from bs4 import BeautifulSoup
 from flask import Flask
+
+# South http://auxopsweb2.oit.nd.edu/DiningMenus/api/Menus/47
+# North http://auxopsweb2.oit.nd.edu/DiningMenus/api/Menus/46
 
 app = Flask(__name__)
 
 url = 'https://dining.nd.edu/locations-menus/south-dining-hall/'
-web = webdriver.Chrome("/Applications/chromedriver")
-web.get(url)
-html = web.page_source
-print(html)
-web.quit()
+menuAPIurl = 'http://auxopsweb2.oit.nd.edu/DiningMenus/api/Menus/47'
+response = requests.get(menuAPIurl) 
+jsonRes = response.json()
 
-soup = BeautifulSoup(html)
-menu = soup.find('div', {'class' : 'menu-container'})
-print(menu)
+'''
+Building objects
+Meal JSON Obj
+{
+    Start: '2018-07-25T06:30:00-04:00'
+    End: '2018-07-25T09:00:00-04:00'
+    Name: 'Breakfast'
+    Menu: ['Apples', 'Bananas']
+}
+'''
+Meals = []
+curMeal = {}
+curMeal['Menu'] = []
+for meal in jsonRes:
+    curMeal['Start'] = meal['EventStart']
+    curMeal['End'] = meal['EventEnd']
+    curMeal['Name'] = meal['Meal']
+    for course in meal['Courses']:
+        for menuItem in course['MenuItems']:
+            curMeal['Menu'].append(menuItem['Name'])
+    Meals.append(curMeal)
+    curMeal = {}
+    curMeal['Menu'] = []
 
-spans = soup.find_all('span', {'class' : 'menu-item-name'})
-foods = [span.get_text() for span in spans]
+[print(meal) for meal in Meals]
 
-print(foods)
+
+foods=[meal for meal in Meals]
+
+@app.route("/")
+def index():
+    return "dh-rest-service"
 
 @app.route("/api/foods")
 def getFoods():
