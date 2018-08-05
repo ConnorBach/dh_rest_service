@@ -49,8 +49,9 @@ def loadData():
 
 
     foods=[meal['Menu'] for meal in Meals]
+    conn = None
     try: 
-        conn = psycopg2.connect(database="foods", sslmode='require')
+        conn = psycopg2.connect(database=DATABASE_URL, sslmode='require')
 
         for menu in foods:
             for food in menu:
@@ -91,7 +92,7 @@ def getToday():
 @app.route("/api/everyFood")
 def everyFood():
     try:
-        conn = psycopg2.connect(database="foods", sslmode='require')
+        conn = psycopg2.connect(database=DATABASE_URL, sslmode='require')
         cur = conn.cursor()
         cur.execute('SELECT * FROM foods')
         rows = cur.fetchall()
