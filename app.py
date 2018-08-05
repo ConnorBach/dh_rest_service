@@ -91,6 +91,7 @@ def getToday():
 
 @app.route("/api/everyFood")
 def everyFood():
+    conn = None
     try:
         conn = psycopg2.connect(database=DATABASE_URL, sslmode='require')
         cur = conn.cursor()
