@@ -16,11 +16,11 @@ url = 'https://dining.nd.edu/locations-menus/south-dining-hall/'
 menuAPIurl = 'http://auxopsweb2.oit.nd.edu/DiningMenus/api/Menus/47'
 Meals = []
 
+
 @app.before_request
 def loadData():
-    response = requests.get(menuAPIurl) 
+    response = requests.get(menuAPIurl)
     jsonRes = response.json()
-
     '''
     Building objects
     Meal JSON Obj
@@ -32,6 +32,7 @@ def loadData():
     }
     '''
     # Meals = []
+    Meals = []
     curMeal = {}
     curMeal['Menu'] = []
     for meal in jsonRes:
@@ -47,22 +48,24 @@ def loadData():
 
     # [print(meal) for meal in Meals]
 
-
-    foods=[meal['Menu'] for meal in Meals]
+    foods = [meal['Menu'] for meal in Meals]
     conn = None
-    try: 
+    try:
         conn = psycopg2.connect(DATABASE_URL)
 
         for menu in foods:
             for food in menu:
                 # check if in database, add if not
                 cur = conn.cursor()
-                cur.execute('SELECT foods.name FROM foods WHERE foods.name = \'{0}\''.format(food.replace('\'', '')))
+                cur.execute(
+                    'SELECT foods.name FROM foods WHERE foods.name = \'{0}\''.
+                    format(food.replace('\'', '')))
 
                 if not cur.fetchone():
                     print('insert', food)
-                    cur.execute('INSERT INTO foods VALUES (\'{0}\')'.format(food.replace('\'', '')))
-                
+                    cur.execute('INSERT INTO foods VALUES (\'{0}\')'.format(
+                        food.replace('\'', '')))
+
                 cur.close()
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -71,13 +74,15 @@ def loadData():
         if conn:
             conn.close()
 
+
 @app.route("/")
 def index():
     return "dh-rest-service"
 
+
 @app.route("/api/today")
 def getToday():
-    today = datetime.utcnow() 
+    today = datetime.utcnow()
     todayMeals = []
     for meal in Meals:
         mealDate = meal['Start'].split('T')[0]
@@ -88,6 +93,7 @@ def getToday():
         if years == today.year and months == today.month and days == today.day:
             todayMeals.append(meal)
     return json.dumps(todayMeals)
+
 
 @app.route("/api/everyFood")
 def everyFood():
@@ -107,4 +113,4 @@ def everyFood():
 
 
 if __name__ == "__main__":
-	app.run()
+    app.run()
