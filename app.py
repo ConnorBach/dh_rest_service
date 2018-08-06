@@ -104,7 +104,11 @@ def everyFood():
         cur = conn.cursor()
         cur.execute('SELECT * FROM foods')
         rows = cur.fetchall()
-        return json.dumps(rows)
+
+        allFoods = []
+        for row in rows:
+            allFoods.append(row[0])
+        return json.dumps(allFoods)
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
