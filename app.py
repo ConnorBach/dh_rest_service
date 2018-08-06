@@ -32,7 +32,8 @@ def loadData():
     }
     '''
     # Meals = []
-    Meals = []
+    # Meals = []
+    del Meals[:]
     curMeal = {}
     curMeal['Menu'] = []
     for meal in jsonRes:
